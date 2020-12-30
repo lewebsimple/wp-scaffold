@@ -7,12 +7,12 @@
 ## Install
 
 ```bash
-npm i -g
+npm i -g wp-scaffold
 ```
 
 ## Usage
 
-To create a site in the current directory:
+Create a site in the current directory:
 
 ```bash
 wp-scaffold <name>
