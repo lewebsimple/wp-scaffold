@@ -1,9 +1,13 @@
 {
   "name": "wp-scaffold",
   "description": "WordPress scaffolding tool",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Pascal Martineau <pascal@lewebsimple.ca>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lewebsimple/wp-scaffold.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
