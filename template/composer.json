@@ -1,0 +1,27 @@
+{
+  "name": "lewebsimple/<%=name%>",
+  "description": "WordPress site",
+  "version": "<%=version%>",
+  "type": "project",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org"
+    },
+    {
+      "type": "composer",
+      "url": "https://satis.ledevsimple.ca"
+    }
+  ],
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "post-update-cmd": "wp core download --force --skip-content",
+    "post-create-project-cmd": "wp core download --force --skip-content"
+  },
+  "require": {
+    "wpackagist-plugin/wp-cfm": "*"
+  }
+}

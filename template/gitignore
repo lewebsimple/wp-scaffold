@@ -1,0 +1,21 @@
+# Ignore everyghing except .gitignore and composer.*
+/*
+!/.gitignore
+!/composer.*
+!/wp-content/
+/wp-content/*
+
+# WP-CFM configuration
+!/wp-content/config/
+
+# Must-use plugins
+!/wp-content/mu-plugins/
+/wp-content/mu-plugins/*
+
+# Plugins
+!/wp-content/plugins/
+/wp-content/plugins/*
+
+# Themes
+!/wp-content/themes/
+/wp-content/themes/*

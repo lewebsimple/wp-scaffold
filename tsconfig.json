@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "CommonJS",
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
