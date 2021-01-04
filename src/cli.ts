@@ -13,7 +13,7 @@ WpScaffold.initialize({
 
 // Create command
 cli.command("<name>", "Create WordPress site").action((name) => {
-  WpScaffold.create({ name });
+  WpScaffold.create({ name, plugins: [] });
 });
 
 cli.help();

@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readdirSync } from "fs";
+import { existsSync, lstatSync, readdirSync, rmdirSync } from "fs";
 import { join } from "path";
 import SAO from "sao";
 
@@ -10,6 +10,11 @@ export interface WpScaffoldConfig {
 }
 
 export interface WpScaffoldCreateOptions {
+  name: string;
+  plugins: string[];
+}
+
+export interface WpScaffoldDeleteOptions {
   name: string;
 }
 
@@ -46,7 +51,7 @@ export class WpScaffold {
 
     // Validate configuration
     if (!existsSync(config.wwwRoot)) {
-      throw new Error("WP-Scaffold www root does not exist");
+      throw new Error(`WP-Scaffold www root does not exist (${config.wwwRoot})`);
     }
 
     WpScaffold.isInitialized = true;
@@ -83,7 +88,25 @@ export class WpScaffold {
         answers: { name: wp.name, version },
       }).run();
     } else {
-      throw new Error("WordPress site already exists");
+      throw new Error(`WordPress site already exists (${name})`);
+    }
+
+    return wp;
+  }
+
+  /**
+   * Destroy WordPress site
+   * @param options WordPress site destruction options
+   */
+  static async destroy({name}: WpScaffoldDeleteOptions): Promise<WpSite> {
+    WpScaffold.checkConfig();
+    const wp = new WpSite(name);
+
+    // Delete directory
+    if (existsSync(wp.path)) {
+      rmdirSync(wp.path, { recursive: true });
+    } else {
+      throw new Error(`WordPress site does not exist (${name})`);
     }
 
     return wp;
