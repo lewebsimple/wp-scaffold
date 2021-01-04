@@ -1,10 +1,19 @@
+import { execSync } from "child_process";
 import { existsSync, lstatSync, readdirSync, rmdirSync } from "fs";
 import { join } from "path";
+import { promisify } from "util";
 import SAO from "sao";
+import { createConnection, Connection, QueryFunction } from "mysql";
 
 const { version } = require("../package.json");
 
 export interface WpScaffoldConfig {
+  adminUser: string;
+  adminPassword: string;
+  adminEmail: string;
+  mysqlHost: string;
+  mysqlUser: string;
+  mysqlPassword: string;
   tld: string;
   wwwRoot: string;
 }
@@ -36,11 +45,21 @@ export class WpSite {
   get path(): string {
     return join(WpScaffold.config.wwwRoot, this.name);
   }
+
+  get dbName(): string {
+    return `wp_${this.name}`;
+  }
+
+  execute(command: string): Buffer {
+    return execSync(command, { cwd: this.path, stdio: "pipe" });
+  }
 }
 
 export class WpScaffold {
   static config: WpScaffoldConfig;
   private static isInitialized: boolean;
+  private static connection: Connection;
+  private static mysqlQuery: QueryFunction;
 
   /**
    * Initialize WP-Scaffold
@@ -54,11 +73,19 @@ export class WpScaffold {
       throw new Error(`WP-Scaffold www root does not exist (${config.wwwRoot})`);
     }
 
-    WpScaffold.isInitialized = true;
+    // Initialize MySQL connection
+    this.connection = createConnection({
+      host: config.mysqlHost,
+      user: config.mysqlUser,
+      password: config.mysqlPassword,
+    });
+    this.mysqlQuery = promisify(this.connection.query).bind(this.connection);
+
+    this.isInitialized = true;
   }
 
   static checkConfig() {
-    if (!WpScaffold.isInitialized) {
+    if (!this.isInitialized) {
       throw new Error("WP-Scaffold is uninitialized");
     }
   }
@@ -68,7 +95,7 @@ export class WpScaffold {
    */
   static list(): WpSite[] {
     const isDirectory = (source: string) => lstatSync(source).isDirectory();
-    const files = readdirSync(WpScaffold.config.wwwRoot).filter((name) => isDirectory(join(WpScaffold.config.wwwRoot, name)));
+    const files = readdirSync(this.config.wwwRoot).filter((name) => isDirectory(join(this.config.wwwRoot, name)));
     return files.map((name) => new WpSite(name));
   }
 
@@ -76,8 +103,8 @@ export class WpScaffold {
    * Create WordPress site
    * @param options WordPress site creation options
    */
-  static async create({ name }: WpScaffoldCreateOptions): Promise<WpSite> {
-    WpScaffold.checkConfig();
+  static async create({ name, plugins }: WpScaffoldCreateOptions): Promise<WpSite> {
+    this.checkConfig();
     const wp = new WpSite(name);
 
     // Scaffold directory using SAO
@@ -90,6 +117,22 @@ export class WpScaffold {
     } else {
       throw new Error(`WordPress site already exists (${name})`);
     }
+
+    // Install Composer dependencies
+    wp.execute(`composer install`);
+
+    // Create MySQL database
+    this.mysqlQuery(`CREATE DATABASE IF NOT EXISTS ${wp.dbName}`);
+
+    // Configure WordPress Core
+    wp.execute(
+      `wp core config --dbname=${wp.dbName} --dbuser=${this.config.mysqlUser} --dbpass=${this.config.mysqlPassword} --dbhost=${this.config.mysqlHost}`,
+    );
+
+    // Install WordPress
+    wp.execute(
+      `wp core install --url=${wp.domain} --title=${wp.name} --admin_user=${this.config.adminUser} --admin_password=${this.config.adminPassword} --admin_email=${this.config.adminEmail} --skip-email`,
+    );
 
     return wp;
   }
@@ -108,6 +151,9 @@ export class WpScaffold {
     } else {
       throw new Error(`WordPress site does not exist (${name})`);
     }
+
+    // Delete MySQL database
+    WpScaffold.mysqlQuery(`DROP DATABASE IF EXISTS ${wp.dbName}`);
 
     return wp;
   }

@@ -7,6 +7,12 @@ const { version } = require("../package.json");
 
 // Initialize WP-Scaffold
 WpScaffold.initialize({
+  adminUser: process.env.WP_SCAFFOLD_ADMIN_USER || 'admin',
+  adminPassword: process.env.WP_SCAFFOLD_ADMIN_PASSWORD || 'changeme',
+  adminEmail: process.env.WP_SCAFFOLD_ADMIN_EMAIL || 'info@example.com',
+  mysqlHost: process.env.WP_SCAFFOLD_MYSQL_HOST || 'localhost',
+  mysqlUser: process.env.WP_SCAFFOLD_MYSQL_USER || 'wordpress',
+  mysqlPassword: process.env.WP_SCAFFOLD_MYSQL_PASSWORD || 'changeme',
   tld: process.env.WP_SCAFFOLD_TLD || "local",
   wwwRoot: process.cwd(),
 });
