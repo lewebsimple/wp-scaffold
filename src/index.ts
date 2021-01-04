@@ -11,7 +11,7 @@ export interface WpScaffoldConfig {
 
 export interface WpScaffoldCreateOptions {
   name: string;
-  plugins: string[];
+  plugins?: string[];
 }
 
 export interface WpScaffoldDeleteOptions {
