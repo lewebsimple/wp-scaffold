@@ -1,7 +1,7 @@
 {
   "name": "wp-scaffold",
   "description": "WordPress scaffolding tool",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Pascal Martineau <pascal@lewebsimple.ca>",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch",
     "prepublish": "yarn run build"
   },
   "bin": {

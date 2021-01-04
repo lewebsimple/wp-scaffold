@@ -1,4 +1,4 @@
-import { existsSync } from "fs";
+import { existsSync, lstatSync, readdirSync } from "fs";
 import { join } from "path";
 import SAO from "sao";
 
@@ -18,8 +18,8 @@ export class WpSite {
 
   constructor(name: string) {
     // Validate name
-    if (!name.match(/^[a-z0-9]+$/)) {
-      throw new Error("Invalid WordPress site name (alphanumeric only)");
+    if (!name.match(/^[a-z0-9-]+$/)) {
+      throw new Error(`Invalid WordPress site name (${name})`);
     }
     this.name = name;
   }
@@ -56,6 +56,15 @@ export class WpScaffold {
     if (!WpScaffold.isInitialized) {
       throw new Error("WP-Scaffold is uninitialized");
     }
+  }
+
+  /**
+   * List WordPress sites
+   */
+  static list(): WpSite[] {
+    const isDirectory = (source: string) => lstatSync(source).isDirectory();
+    const files = readdirSync(WpScaffold.config.wwwRoot).filter((name) => isDirectory(join(WpScaffold.config.wwwRoot, name)));
+    return files.map((name) => new WpSite(name));
   }
 
   /**
